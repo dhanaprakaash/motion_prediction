@@ -39,15 +39,6 @@ robot_plan = a_star.a_star(my_start_index, my_goal_index, cm_width, cm_height,my
 for i in range(len(input_1)): 
     input_1[i] =random.randint(0,74*74)'''
 
-
-
-
-
-
-
-
-
-
 cost_map_values =set()
 for i in range(len(my_costmap)):
     cost_map_values.add(my_costmap[i])
@@ -104,11 +95,6 @@ mask_edge_upper = [1,1,0,1,1,0,1,1,0]
 mask_edge_lower = [0,1,1,0,1,1,0,1,1]
 
 normal_mask = [1,1,1, 1,1,1, 1,1,1]
-
-
-
-
-
 
 for i in range(cm_width* cm_height):
     if (i == 0):
@@ -327,69 +313,95 @@ for i in range(len(distance_vector)):
 ### Distance Vector  Distance vector elements tells about the distance between robot and human at time instances 
 print("Distance Vector:", distance_vector)
 
-def find_spatio_temporal_risk (distance_vector, safe_threshold =8, human_traj = human_plan):
+def find_spatio_temporal_risk (distance_vector, safe_threshold =4, risk_index = robot_plan): ## verified, need to change the structure at last!!
     is_risk_detected = False
     risk_index_wrt_human = 0
-    for i in range (len(distance_vector)):
+    for i in range (1,len(distance_vector)):
         if (distance_vector[i] < safe_threshold):
             is_risk_detected = True
-            risk_index_wrt_human = human_traj[i]
-            return is_risk_detected, risk_index_wrt_human
-        else:
-            return is_risk_detected, risk_index_wrt_human
+            risk_index_wrt_human = risk_index[i]
+            break
+    print("risk_index_wrt_human:", risk_index_wrt_human)
+    return is_risk_detected, risk_index_wrt_human
 
 Risk_Detected, Spatio_temp_obstacle  = find_spatio_temporal_risk (distance_vector)
-print("Risk detected (Human pos and robot pos coincides ) in xy: ", a_star.indexToWorld(Spatio_temp_obstacle,cm_width,my_resolution, my_origin))
+#print("Risk detected (Human pos and robot pos coincides ) in xy: ", a_star.indexToWorld(Spatio_temp_obstacle,cm_width,my_resolution, my_origin))
 print("results:", Risk_Detected, Spatio_temp_obstacle)
 
-def update_costmap (costmap_to_process, obstcle_loc):
+def update_costmap (costmap_to_process, obstcle_loc): ## verified
+    print("Function:   update_costmap: ")
     a= obstcle_loc
+    print("obstacel_loc:", obstcle_loc)
     modified_map = list(costmap_to_process)
-    obstacle_list  = [  a+76+74, a+76, a+2 ,a-72, a-72-74,
+    '''obstacle_list  = [  a+76+74, a+76, a+2 ,a-72, a-72-74,
                         a+75+74, a+75, a+1, a-73, a-73-74,
                         a+74+74, a+74, a, a-74, a-74-74,
                         a+73+74, a+73, a-1, a-75, a-75-74,
-                        a+72+74, a+72, a-2, a-76, a-76-74   ]
+                        a+72+74, a+72, a-2, a-76, a-76-74   ]'''
+    obstacle_list = [a+75, a+1, a-73, a+74, a, a-74, a+73, a-1, a-75]
     for i in range(len(obstacle_list)):
-        modified_map[i] = 255 ### Adding obstacle in the costmap (obstacle is added exactly at the location and neighbouring cells surrounding them)
+        modified_map[obstacle_list[i]] = 255 ### Adding obstacle in the costmap (obstacle is added exactly at the location and neighbouring cells surrounding them)
     ypdated_map =tuple(modified_map)
+    debug_costmap = []
+    for i in range(len(ypdated_map)):
+        print("i=", i , costmap_to_process[i], ypdated_map[i])
+    for i in range (len(ypdated_map)):
+        if (costmap_to_process[i]!= ypdated_map[i]):
+            debug_costmap.append(i)
+    print("debug_costmap:", debug_costmap)
+    print("===========================")
     return ypdated_map
 
 ### status is True indicates , Spatio-temporal collision is predicted, 
 ### costmap map should be updates with the dected obstacle 
 ### again, plan has to be done for robot 
-def update_the_plan(status, human_obstacle_loc, costmap_to_process = my_costmap , intiail_robot_paln = robot_plan):
-    updated_safe_plan = list()
-    if (status is False):
-        updated_safe_plan = robot_plan
+def update_the_plan(status, human_obstacle_index, costmap_to_process = my_costmap , intiail_robot_paln = robot_plan):
+    print("Inside : update_the_plan_function")
+    print("Status:", status)
+    if (status):
+        print("intial plan:", intiail_robot_paln)
+        updated_costmap = update_costmap(costmap_to_process , human_obstacle_index)
+        print("updated_costmap:", update_costmap)
+        updated_safe_plan= a_star.a_star(intiail_robot_paln[0], intiail_robot_paln[len(intiail_robot_paln)-1], width=74, height=74, costmap= updated_costmap, resolution=0.2, origin=[-7.4, -7.4, 0])
+        print("index:", human_obstacle_index)
+        print("intial plan:", intiail_robot_paln)
+        print("update plan 2:", updated_safe_plan)
+        print("exiting 2: update_the_plan_function")
         return updated_safe_plan
-    if (status is True):
-        updated_costmap = update_costmap(costmap_to_process , human_obstacle_loc)
-        updated_safe_plan= a_star.a_star(intiail_robot_paln[0], intiail_robot_paln[len(intiail_robot_paln)-1], width=74, height=74, costmap=updated_costmap, resolution=0.2, origin=[-7.4, -7.4, 0])
-    return updated_safe_plan
+    else:
+        print("intitial plan:", intiail_robot_paln)
+        updated_safe_plan = intiail_robot_paln
+        print ("no replan")
+        print("update plan 1: ", updated_safe_plan)
+        print("exiting 1: update_the_plan_function")
+        return updated_safe_plan
+
 
 
 ### Human-Safe Path Planning 
 Human_Safe_Planning = update_the_plan(Risk_Detected, Spatio_temp_obstacle)
+print("##Human safe Planning:", Human_Safe_Planning)
 
 
-human_plan_1 =[]
-human_plan_1.append(robot_plan[0])
+Human_Safe_Planning[0] =robot_plan[0]
+
+'''robot_plan_11=[]
+robot_plan_11.append(robot_plan[0])
 
 ### Appening the start index to the plan at index : 0 
 for i in range(len(robot_plan)):
-    human_plan_1.append(Human_Safe_Planning[i-1])
+    robot_plan_11.append(Human_Safe_Planning[i-1])
 
-Human_Safe_Planning = human_plan_1
+Human_Safe_robot_Plan = robot_plan_11 '''
 
 
-print("Human-safe-path", Human_Safe_Planning)
+#print("Human-safe-path:::", Human_Safe_robot_Plan)
 
 print("\n\n")
 print ("*****Summary*****")
 
 print("Planned Robot Path:", robot_plan)
 print("Predicted HUman Path:", human_plan)
-print("Risk Detected: ", Risk_Detected ,"(check function: find_spatio_temporal_risk for threshold)")
+print("Risk Detected: ", Risk_Detected)
 print("Human- Safe Path Plan:", Human_Safe_Planning)
 print("==============")
