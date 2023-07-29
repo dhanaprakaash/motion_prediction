@@ -68,7 +68,6 @@ xy_goal_index = indexToWorld(my_goal_index,74,0.2,[0,0])
 plt.plot(xy_start_index[0],xy_start_index[1],'o')
 plt.plot(xy_goal_index[0], xy_goal_index[1],'o')
 plt.plot(x_robot_plan,y_robot_plan)
-plt.legend(['static obstacle','robot:start', 'robot:goal', 'robot:path'])
 #plt.show()
 
 
@@ -138,7 +137,7 @@ time_instants = []
 
 for i in range (len(distance_vector)):
     if (distance_vector[i]< safe_distance):
-        spatio_temporal_collisions.append(robot_plan[i])
+        spatio_temporal_collisions.append(human_trajectory[i]) ## important!!!
         time_instants.append(i)
 
 print ("spatio-temporal-collisions:", spatio_temporal_collisions)
