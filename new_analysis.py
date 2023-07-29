@@ -602,5 +602,5 @@ fin_x_obs = x_obstacle_list
 fin_y_obs = y_obstacle_list
 
 
-#plt.plot(fin_x_obs,fin_y_obs, 'o')
+plt.plot(fin_x_obs,fin_y_obs, 'o')
 plt.show()

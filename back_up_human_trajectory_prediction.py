@@ -27,8 +27,8 @@ my_costmap = (255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 2
 
 ## Importing from robot plan from A star 
 ### Planning the robot plan using A* algorithm (file: a_star.py)
-my_start_index=1650
-my_goal_index= 1238
+my_start_index=2050
+my_goal_index= 2345
 my_resolution= 0.2
 my_origin = [-7.4, -7.4, 0]
 ### a_star(start_index, goal_index, width, height, costmap, resolution, origin)
@@ -258,24 +258,9 @@ print("grids occupied:", human_occupied_gird, len(human_occupied_gird))
 #(input 1 for risk detector)
 human_plan = predicted_human_trajectory
 
-
-XY_human_plan = [0] * len(human_plan)
-
-for i in range (len(XY_human_plan)):
-    XY_human_plan[i] = a_star.indexToWorld(human_plan[i], 74, 0.2, [0,0])
-
-x_human_plan = [0] * len(human_plan)
-y_human_plan = [0] * len (human_plan)
-
-for i in range (len(human_plan)):
-    x_human_plan[i] = round(XY_human_plan[i][0],2)
-    y_human_plan[i] = round (XY_human_plan[i][1],2)
-
-plt.plot(x_human_plan, y_human_plan)
-
 '''## Importing from robot plan from A star 
 ### Planning the robot plan using A* algorithm (file: a_star.py)
-my_start_index=4059
+my_start_index=2050
 my_goal_index= 2345
 my_resolution= 0.2
 my_origin = [-7.4, -7.4, 0]
@@ -449,7 +434,7 @@ for i in range(len(index_plan)):
 print("x_plot_robot:", x_plot_robot_plan)
 print("y_plot_robot:", y_plot_robot_plan)
 
-plt.plot(x_plot_robot_plan, y_plot_robot_plan,'o')
+plt.plot(x_plot_robot_plan, y_plot_robot_plan)
 
 ### plotting human safe 
 
@@ -598,9 +583,6 @@ for i in range (len(obstacles_index)):
 print("x_obstacle: ", x_obstacle_list)
 print("y_obstacle:" ,y_obstacle_list)
 
-fin_x_obs = x_obstacle_list
-fin_y_obs = y_obstacle_list
 
-
-#plt.plot(fin_x_obs,fin_y_obs, 'o')
+plt.plot(x_obstacle_list, y_obstacle_list, 'o')
 plt.show()

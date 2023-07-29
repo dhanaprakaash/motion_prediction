@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-import rospy
+import costmap
 
 
 def find_neighbors(index, width, height, costmap, orthogonal_step_cost):
@@ -67,7 +67,7 @@ def find_neighbors(index, width, height, costmap, orthogonal_step_cost):
     return neighbors
 
 
-def dijkstra(start_index, goal_index, width, height, costmap, resolution, origin, grid_viz):
+def dijkstra(start_index, goal_index, width, height, costmap, resolution, origin):#, grid_viz):
     ''' 
     Performs Dijkstra's shortes path algorithm search on a costmap with a given start and goal node
     '''
@@ -93,7 +93,7 @@ def dijkstra(start_index, goal_index, width, height, costmap, resolution, origin
     shortest_path = []
 
     path_found = False
-    rospy.loginfo('Dijkstra: Done with initialization')
+    print('Dijkstra: Done with initialization')
 
     
     while open_list:
@@ -107,7 +107,7 @@ def dijkstra(start_index, goal_index, width, height, costmap, resolution, origin
         closed_list.add(current_node)
 
        
-        grid_viz.set_color(current_node, "pale yellow")
+        #grid_viz.set_color(current_node, "pale yellow")
 
         
         if current_node == goal_index:
@@ -153,12 +153,12 @@ def dijkstra(start_index, goal_index, width, height, costmap, resolution, origin
                 open_list.append([neighbor_index, g_cost])
 
                 
-                grid_viz.set_color(neighbor_index, 'orange')
+                #grid_viz.set_color(neighbor_index, 'orange')
 
-    rospy.loginfo('Dijkstra: Done traversing nodes in open_list')
+    print('Dijkstra: Done traversing nodes in open_list')
 
     if not path_found:
-        rospy.logwarn('Dijkstra: No path found!')
+        print('Dijkstra: No path found!')
         return shortest_path
 
     # Reconstruct path by working backwards from target
@@ -171,6 +171,12 @@ def dijkstra(start_index, goal_index, width, height, costmap, resolution, origin
             node = parents[node]
     # reverse list
     shortest_path = shortest_path[::-1]
-    rospy.loginfo('Dijkstra: Done reconstructing path')
+    print('Dijkstra: Done reconstructing path')
     print("Algorithn returns the path: Dijkstra's")
     return shortest_path
+
+if __name__=="__main__":
+    my_data= costmap.my_costmap
+    path = dijkstra(1650, 1238, 74,74,my_data, 0.2,[0,0])
+    print ("path:" , path)
+    
