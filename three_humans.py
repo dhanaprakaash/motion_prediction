@@ -77,18 +77,28 @@ plt.plot(x_robot_plan,y_robot_plan)
 ### write this function 
 ### human_start 
 human_trajectory = genHumTrajectory(epoch_lenggth=len(robot_plan))
-
+human_trajectory2 =genHumTrajectory(epoch_lenggth=len(robot_plan))
+human_trajectory3 = genHumTrajectory(epoch_lenggth=len(robot_plan))
 print ("Human Trajectory:", human_trajectory, "len: ",len(human_trajectory))
 
 x_human_trajectory, y_human_trajectory= oneDtotwoD(human_trajectory)
+x_human_trajectory2, y_human_trajectory2 =oneDtotwoD(human_trajectory2)
+x_human_trajectory3, y_human_trajectory3 =oneDtotwoD(human_trajectory3)
 
 #print("x_human:", x_human_trajectory)
 #print ("y_human:", y_human_trajectory)
 
+
+
 plt.plot(x_human_trajectory[0], y_human_trajectory[0],'o')
 plt.plot(x_human_trajectory, y_human_trajectory)
 plt.plot(x_human_trajectory[-1], y_human_trajectory[-1],'o')
-plt.legend(['static obstacle','robot:start', 'robot:goal', 'robot:path','human:start','human:path','human:goal'])
+
+plt.plot(x_human_trajectory2[0], y_human_trajectory2[0])
+plt.plot(x_human_trajectory2, y_human_trajectory2)
+plt.plot(x_human_trajectory2[-1], y_human_trajectory2[-1])
+plt.legend(['static obstacle','robot:start', 'robot:goal', 'robot:path','human1:start','human1:path','human1:goal',
+            'human2:start','human2:path','human2:goal'])
 # plot nus: 7
 
 ### so far 
@@ -96,6 +106,8 @@ plt.legend(['static obstacle','robot:start', 'robot:goal', 'robot:path','human:s
 ### Spatio-temporal Collision Detection:
 
 spatio_temporal_collisions = []
+spatio_temporal_collisions2 = []
+spatio_temporal_collisions3= []
 
 
 ### find the distance vector for 3 different parameters 
@@ -103,12 +115,35 @@ distance_vector_manhatten = []
 distance_vector_euclidean = []
 distance_shortest_path_length = [] #  Dijkstra's 
 
+distance_vector_manhatten2 = []
+distance_vector_euclidean2 = []
+distance_shortest_path_length2 = []
+
+distance_vector_manhatten3 = []
+distance_vector_euclidean3 = []
+distance_shortest_path_length3 = []
+
 for i in range(len(robot_plan)):
     distance_vector_manhatten.append(round(manhattan_distance(indexToWorld(robot_plan[i], 74, 0.2, [0,0]),
                                       indexToWorld(human_trajectory[i], 74, 0.2, [0,0])),2))
     distance_vector_euclidean.append(round(euclidean_distance(indexToWorld(robot_plan[i], 74, 0.2, [0,0]),
                                       indexToWorld(human_trajectory[i], 74, 0.2, [0,0])),2))
     distance_shortest_path_length.append(len(dijkstra.dijkstra(robot_plan[i], human_trajectory[i], 74,74,map, 0.2,[0,0])))
+
+for i in range(len(robot_plan)):
+    distance_vector_manhatten2.append(round(manhattan_distance(indexToWorld(robot_plan[i], 74, 0.2, [0,0]),
+                                      indexToWorld(human_trajectory2[i], 74, 0.2, [0,0])),2))
+    distance_vector_euclidean2.append(round(euclidean_distance(indexToWorld(robot_plan[i], 74, 0.2, [0,0]),
+                                      indexToWorld(human_trajectory2[i], 74, 0.2, [0,0])),2))
+    distance_shortest_path_length2.append(len(dijkstra.dijkstra(robot_plan[i], human_trajectory2[i], 74,74,map, 0.2,[0,0])))
+
+
+for i in range(len(robot_plan)):
+    distance_vector_manhatten3.append(round(manhattan_distance(indexToWorld(robot_plan[i], 74, 0.2, [0,0]),
+                                      indexToWorld(human_trajectory3[i], 74, 0.2, [0,0])),2))
+    distance_vector_euclidean3.append(round(euclidean_distance(indexToWorld(robot_plan[i], 74, 0.2, [0,0]),
+                                      indexToWorld(human_trajectory3[i], 74, 0.2, [0,0])),2))
+    distance_shortest_path_length3.append(len(dijkstra.dijkstra(robot_plan[i], human_trajectory3[i], 74,74,map, 0.2,[0,0])))
 
 
 print ("Distance Vector: Manhatten", distance_vector_manhatten, len(distance_vector_manhatten), "Avg:",
@@ -118,7 +153,19 @@ print ("Distance Vector: Euclidean", distance_vector_euclidean, len(distance_vec
 print ("Distance Vector: Shorest Path Length:", distance_shortest_path_length, len(distance_shortest_path_length),
        "Avg:",sum(distance_shortest_path_length)/len(distance_shortest_path_length))
 
+print ("Distance Vector: Manhatten2", distance_vector_manhatten2, len(distance_vector_manhatten2), "Avg:",
+       sum(distance_vector_manhatten2)/len(distance_vector_manhatten2))
+print ("Distance Vector: Euclidean2", distance_vector_euclidean2, len(distance_vector_euclidean2), "Avg:",
+       sum(distance_vector_euclidean2)/len(distance_vector_euclidean2))
+print ("Distance Vector: Shorest Path Length:", distance_shortest_path_length2, len(distance_shortest_path_length2),
+       "Avg:",sum(distance_shortest_path_length2)/len(distance_shortest_path_length2))
 
+print ("Distance Vector: Manhatten3", distance_vector_manhatten3, len(distance_vector_manhatten3), "Avg:",
+       sum(distance_vector_manhatten3)/len(distance_vector_manhatten3))
+print ("Distance Vector: Euclidean3", distance_vector_euclidean3, len(distance_vector_euclidean3), "Avg:",
+       sum(distance_vector_euclidean3)/len(distance_vector_euclidean3))
+print ("Distance Vector: Shorest Path Length3:", distance_shortest_path_length3, len(distance_shortest_path_length3),
+       "Avg:",sum(distance_shortest_path_length3)/len(distance_shortest_path_length3))
 #### Mega Debug 
 
 '''
@@ -142,18 +189,62 @@ for i in range (len(distance_vector)):
 
 print ("spatio-temporal-collisions:", spatio_temporal_collisions)
 print ("time instants: ", time_instants)
-#plt.show()
-for i in range (len(time_instants)):
-    x_cor, y_cor = oneDtotwoD([robot_plan[time_instants[i]],human_trajectory[time_instants[i]]])
-    plt.plot(x_cor, y_cor)
+
+##Human 2
+distance_vector2 = distance_vector_euclidean2
+safe_distance = safeThreshold_Euclidean
+time_instants2 = []
+
+for i in range (len(distance_vector2)):
+    if (distance_vector2[i]< safe_distance):
+        spatio_temporal_collisions2.append(robot_plan[i]) ## important!!!
+        time_instants2.append(i)
+
+print ("spatio-temporal-collisions2:", spatio_temporal_collisions2)
+print ("time instants2: ", time_instants2)
+
+##Human 3
+distance_vector3 = distance_vector_euclidean3
+safe_distance = safeThreshold_Euclidean
+time_instants3 = []
+
+for i in range (len(distance_vector3)):
+    if (distance_vector3[i]< safe_distance):
+        spatio_temporal_collisions3.append(robot_plan[i]) ## important!!!
+        time_instants3.append(i)
+
+print ("spatio-temporal-collisions2:", spatio_temporal_collisions3)
+print ("time instants2: ", time_instants3)
+
+
+
+
 
 #plt.show()
+
+'''for i in range (len(time_instants)):
+    x_cor, y_cor = oneDtotwoD([robot_plan[time_instants[i]],human_trajectory[time_instants[i]]])
+    x_cor2,y_cor2 = oneDtotwoD([robot_plan[time_instants2[i]]], human_trajectory2[time_instants2[i]])
+    plt.plot(x_cor, y_cor)
+    plt.plot(x_cor2,y_cor2)
+
+plt.show()'''
 if (len(spatio_temporal_collisions)==0):
     print ("No collision")
 else :
     print("How many collisions?",len(spatio_temporal_collisions))
 
 
+
+if (len(spatio_temporal_collisions2)==0):
+    print ("No collision")
+else :
+    print("How many collisions2?",len(spatio_temporal_collisions2))
+
+if (len(spatio_temporal_collisions3)==0):
+    print ("No collision")
+else :
+    print("How many collisions2?",len(spatio_temporal_collisions3))
 ### two functionalities remaining!!!
 ### Update the costmap 
 ### Debug :: 
@@ -172,72 +263,6 @@ my_map =list(map)
 #print("my_map:", type(my_map), len(my_map))
 
 for i in range(len(spatio_temporal_collisions)):
-    
-    '''if (spatio_temporal_collisions[i]-76 < 5476):
-        my_map[spatio_temporal_collisions[i]-76] =255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]-76)
-
-    if (spatio_temporal_collisions[i]-2 < 5476):
-        my_map[spatio_temporal_collisions[i]-2] = 255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]-2)
-    
-    if (spatio_temporal_collisions[i]-72 < 5476):
-        my_map[spatio_temporal_collisions[i]-72] =255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]-72)
-
-    if (spatio_temporal_collisions[i]+76 < 5476):
-        my_map[spatio_temporal_collisions[i]+76] =255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]+76)
-
-    if (spatio_temporal_collisions[i]+2 < 5476):
-        my_map[spatio_temporal_collisions[i]+2] = 255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]+2)
-    
-    if (spatio_temporal_collisions[i]+72 < 5476):
-        my_map[spatio_temporal_collisions[i]+72] =255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]+72)
-    
-    ## right corner
-    if (spatio_temporal_collisions[i]-146 < 5476):
-        my_map[spatio_temporal_collisions[i]-146] =255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]-146)
-
-    if (spatio_temporal_collisions[i]-147 < 5476):
-        my_map[spatio_temporal_collisions[i]-147] = 255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]-147)
-    
-    if (spatio_temporal_collisions[i]-148 < 5476):
-        my_map[spatio_temporal_collisions[i]-148] =255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]-148)
-
-    if (spatio_temporal_collisions[i]-149 < 5476):
-        my_map[spatio_temporal_collisions[i]-149]   = 255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]-149)
-
-    if (spatio_temporal_collisions[i]-150 < 5476):
-        my_map[spatio_temporal_collisions[i]-150] = 255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]-150) 
-
-    ## left corner
-    if (spatio_temporal_collisions[i]+146 < 5476):
-        my_map[spatio_temporal_collisions[i]+146] =255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]+146)
-
-    if (spatio_temporal_collisions[i]+147 < 5476):
-        my_map[spatio_temporal_collisions[i]+147] = 255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]+147)
-    
-    if (spatio_temporal_collisions[i]+148 < 5476):
-        my_map[spatio_temporal_collisions[i]+148] =255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]+148)
-
-    if (spatio_temporal_collisions[i]+149 < 5476):
-        my_map[spatio_temporal_collisions[i]+149]   = 255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]+149)
-
-    if (spatio_temporal_collisions[i]+150 < 5476):
-        my_map[spatio_temporal_collisions[i]+150] = 255
-        dynamic_obstacles.append(spatio_temporal_collisions[i]+150) '''
     
     ### regular 
     if (spatio_temporal_collisions[i]-75 < 5476):
@@ -276,6 +301,87 @@ for i in range(len(spatio_temporal_collisions)):
         my_map[spatio_temporal_collisions[i]+75] = 255
         dynamic_obstacles.append(spatio_temporal_collisions[i]+75)
 
+
+for i in range(len(spatio_temporal_collisions2)):
+    
+    ### regular 
+    if (spatio_temporal_collisions2[i]-75 < 5476):
+        my_map[spatio_temporal_collisions2[i]-75] =255
+        dynamic_obstacles.append(spatio_temporal_collisions2[i]-75)
+
+    if (spatio_temporal_collisions2[i]-74 < 5476):
+        my_map[spatio_temporal_collisions2[i]-74] =255
+        dynamic_obstacles.append(spatio_temporal_collisions2[i]-74)
+
+    if (spatio_temporal_collisions2[i]-73 < 5476):
+        my_map[spatio_temporal_collisions2[i]-73] = 255
+        dynamic_obstacles.append(spatio_temporal_collisions2[i]-75)
+    
+    if (spatio_temporal_collisions2[i]-1 < 5476):
+        my_map[spatio_temporal_collisions2[i]-1] =255
+        dynamic_obstacles.append(spatio_temporal_collisions2[i]-1)
+
+    if (spatio_temporal_collisions2[i] < 5476):
+        my_map[spatio_temporal_collisions2[i]]   = 255
+        dynamic_obstacles.append(spatio_temporal_collisions2[i])
+
+    if (spatio_temporal_collisions2[i]+1 < 5476):
+        my_map[spatio_temporal_collisions2[i]+1] = 255
+        dynamic_obstacles.append(spatio_temporal_collisions2[i]+1) 
+
+    if (spatio_temporal_collisions2[i]+73 < 5476):
+        my_map[spatio_temporal_collisions2[i]+73] = 255
+        dynamic_obstacles.append(spatio_temporal_collisions2[i]+73) 
+
+    if (spatio_temporal_collisions2[i]+74 < 5476):
+        my_map[spatio_temporal_collisions2[i]+74] = 255
+        dynamic_obstacles.append(spatio_temporal_collisions2[i]+74) 
+
+    if (spatio_temporal_collisions2[i]+75 < 5476):
+        my_map[spatio_temporal_collisions2[i]+75] = 255
+        dynamic_obstacles.append(spatio_temporal_collisions2[i]+75)
+
+
+##HUman 3 
+for i in range(len(spatio_temporal_collisions3)):
+    
+    ### regular 
+    if (spatio_temporal_collisions3[i]-75 < 5476):
+        my_map[spatio_temporal_collisions3[i]-75] =255
+        dynamic_obstacles.append(spatio_temporal_collisions3[i]-75)
+
+    if (spatio_temporal_collisions3[i]-74 < 5476):
+        my_map[spatio_temporal_collisions3[i]-74] =255
+        dynamic_obstacles.append(spatio_temporal_collisions3[i]-74)
+
+    if (spatio_temporal_collisions3[i]-73 < 5476):
+        my_map[spatio_temporal_collisions3[i]-73] = 255
+        dynamic_obstacles.append(spatio_temporal_collisions3[i]-75)
+    
+    if (spatio_temporal_collisions3[i]-1 < 5476):
+        my_map[spatio_temporal_collisions3[i]-1] =255
+        dynamic_obstacles.append(spatio_temporal_collisions3[i]-1)
+
+    if (spatio_temporal_collisions3[i] < 5476):
+        my_map[spatio_temporal_collisions3[i]]   = 255
+        dynamic_obstacles.append(spatio_temporal_collisions3[i])
+
+    if (spatio_temporal_collisions3[i]+1 < 5476):
+        my_map[spatio_temporal_collisions3[i]+1] = 255
+        dynamic_obstacles.append(spatio_temporal_collisions3[i]+1) 
+
+    if (spatio_temporal_collisions3[i]+73 < 5476):
+        my_map[spatio_temporal_collisions3[i]+73] = 255
+        dynamic_obstacles.append(spatio_temporal_collisions3[i]+73) 
+
+    if (spatio_temporal_collisions3[i]+74 < 5476):
+        my_map[spatio_temporal_collisions3[i]+74] = 255
+        dynamic_obstacles.append(spatio_temporal_collisions3[i]+74) 
+
+    if (spatio_temporal_collisions3[i]+75 < 5476):
+        my_map[spatio_temporal_collisions3[i]+75] = 255
+        dynamic_obstacles.append(spatio_temporal_collisions3[i]+75)
+
 goal_neighbours = find_neighbors(robot_plan[-1],74,74,map,0.2)
 print("goal neighbours:", goal_neighbours)
 remove_nodes = [0] * len(goal_neighbours)
@@ -302,6 +408,7 @@ print("Remove nodes:", remove_nodes)
 for i in range (len(remove_nodes)):
     if (remove_nodes[i] in dynamic_obstacles):
         dynamic_obstacles.remove(remove_nodes[i])
+
 
 dynamic_obs =set()
 #print("Dynamic Obstacle:", dynamic_obstacles , len(dynamic_obstacles))
@@ -334,7 +441,10 @@ if (len(spatio_temporal_collisions) == 0):
 else:
     updated_robot_plan = a_star(start_index = my_start_index, goal_index = my_goal_index,width = 74, height= 74, 
                             costmap = updated_map,resolution=my_resolution, origin=my_origin)
-  
+
+
+'''if (len(updated_robot_plan)==1):
+    updated_robot_plan=robot_plan'''
 
 ### printing the final output: 
 print ("###Summary###")
@@ -346,17 +456,22 @@ print ("updated_robot_plan:", updated_robot_plan, len(updated_robot_plan))
 #x_obstacles, y_obstacles
 #x_robot_plan,y_robot_plan
 #x_human_trajectory,y_human_trajectory
+nuumber_of_coolisions  = set()
 
+for i in range(len(spatio_temporal_collisions)):
+    nuumber_of_coolisions.add(spatio_temporal_collisions[i])
+for i in range(len(spatio_temporal_collisions2)):
+    nuumber_of_coolisions.add(spatio_temporal_collisions2[i])
+for i in range(len(spatio_temporal_collisions3)):
+    nuumber_of_coolisions.add(spatio_temporal_collisions3[i])
 
+print("spatio :", len (nuumber_of_coolisions))
 print("#### Summary ####")
 print("robot start index:",robot_plan[0] )
 print("Robot Goal Index:", robot_plan[-1])
 print("path length:", len(robot_plan))
-print("number od expected coolisions:", len(spatio_temporal_collisions))
-if (len(spatio_temporal_collisions)==0):
-    print("Updated robot plan:", len(updated_robot_plan))
-else:
-    print("Updated robot plan:", len(updated_robot_plan))
+print("number od expected coolisions:", len(nuumber_of_coolisions))
+print("Updated robot plan:", len(updated_robot_plan)+1)
 
 
 
@@ -371,5 +486,6 @@ plt.plot(x_obstacles,y_obstacles,'o')
 plt.plot(x_dynamic_obstacles, y_dynamic_obstacles,'o')
 plt.plot(x_updated_path, y_updated_path,'o')
 plt.plot(x_human_trajectory,y_human_trajectory)
+plt.plot(x_human_trajectory2, y_human_trajectory2)
 plt.plot(x_robot_plan, y_robot_plan)
 #plt.show()

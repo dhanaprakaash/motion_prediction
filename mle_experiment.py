@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-
 import costmap
 import matplotlib.pyplot as plt
 from oneDtotwoD import oneDtotwoD
@@ -115,7 +114,7 @@ distance_vector_dijkstra = distance_shortest_path_length
 
 safeThreshold_manhantten = 3
 safeThreshold_Euclidean = 3
-safeThreshold_Dijkstra = 10
+safeThreshold_Dijkstra = 3
 
 
 
@@ -126,7 +125,7 @@ time_instants_dijkstra = []
 ## euclidean 
 for i in range (len(distance_vector_euclidean)):
     if (distance_vector_euclidean[i]< safeThreshold_Euclidean):
-        spatio_temporal_collisions_euclidean.append(human_trajectory[i]) ## important!!!
+        spatio_temporal_collisions_euclidean.append(robot_plan[i]) ## important!!!
         time_instants_euclidean.append(i)
 
 print ("spatio-temporal-collisions_euclidean:", spatio_temporal_collisions_euclidean)
@@ -135,7 +134,7 @@ print ("time instants_euclidean: ", time_instants_euclidean)
 ##Manhatten 
 for i in range (len(distance_vector_manhatten)):
     if (distance_vector_manhatten[i]< safeThreshold_manhantten):
-        spatio_temporal_collisions_manhatten.append(human_trajectory[i]) ## important!!!
+        spatio_temporal_collisions_manhatten.append(robot_plan[i]) ## important!!!
         time_instants_manhatten.append(i)
 
 print ("spatio-temporal-collisions_manhatten:", spatio_temporal_collisions_manhatten)
@@ -145,7 +144,7 @@ print ("time instants_manhatten: ", time_instants_manhatten)
 
 for i in range (len(distance_vector_dijkstra)):
     if (distance_vector_dijkstra[i]< safeThreshold_Dijkstra):
-        spatio_temporal_collisions_dijkstra.append(human_trajectory[i]) ## important!!!
+        spatio_temporal_collisions_dijkstra.append(robot_plan[i]) ## important!!!
         time_instants_dijkstra.append(i)
 
 print ("spatio-temporal-collisions_dijkstra:", spatio_temporal_collisions_dijkstra)
@@ -458,6 +457,8 @@ print("Distance Vector: euclidean:", distance_vector_euclidean, len(distance_vec
 print("Spatio-temporal-obstacles :euclidean", spatio_temporal_collisions_euclidean , len(spatio_temporal_collisions_euclidean))
 print ("time instants euclidean:", time_instants_euclidean, len(time_instants_euclidean))
 
+print("dynamic obstacles: ", dynamic_obstacles_euclidean, len(dynamic_obstacles_euclidean))
+
 print ("safe Threshold: ", safeThreshold_Euclidean)
 print ("updated robot path : euclidean: ", updated_robot_plan_euclidean, len(updated_robot_plan_euclidean))
 
@@ -468,6 +469,8 @@ print("Distance Vector: manhatten:", distance_vector_manhatten, len(distance_vec
 print("Spatio-temporal-obstacles :manhatten", spatio_temporal_collisions_manhatten , len(spatio_temporal_collisions_manhatten))
 print ("time instants manhatten:", time_instants_manhatten, len(time_instants_manhatten))
 
+print("dynamic obstacles: ", dynamic_obstacles_manhatten, len(dynamic_obstacles_manhatten))
+
 print ("safe Threshold: ", safeThreshold_manhantten)
 print ("updated robot path : manhatten: ", updated_robot_plan_manhatten, len(updated_robot_plan_manhatten))
 
@@ -477,6 +480,7 @@ print ("            ### dijkstra's    ")
 print("Distance Vector: dijkstra:", distance_vector_dijkstra, len(distance_vector_dijkstra) )
 print("Spatio-temporal-obstacles :dijkstra", spatio_temporal_collisions_dijkstra , len(spatio_temporal_collisions_dijkstra))
 print ("time instants dijkstra:", time_instants_dijkstra, len(time_instants_dijkstra))
+print("dynamic obstacles:", dynamic_obstacles_dijkstra, len(dynamic_obstacles_dijkstra))
 
 print ("safe Threshold: ", safeThreshold_Dijkstra)
 print ("updated robot path : dijkstra ", updated_robot_plan_dijkstra, len(updated_robot_plan_dijkstra))
