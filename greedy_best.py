@@ -1,34 +1,27 @@
-import numpy as np
 from queue import PriorityQueue
 
-def heuristic(node, goal):
-    return np.sqrt((node[0] - goal[0])**2 + (node[1] - goal[1])**2)
-
-def astar(grid, start, goal):
+def greedy_best_first_search(grid, start, goal):
     open_list = PriorityQueue()
-    open_list.put((0, start))
+    open_list.put((heuristic(start, goal), start))
     came_from = {}
-    cost_so_far = {}
     came_from[start] = None
-    cost_so_far[start] = 0
 
     while not open_list.empty():
-        current_cost, current_node = open_list.get()
+        _, current_node = open_list.get()
 
         if current_node == goal:
             break
 
         for next_node in neighbors(current_node, grid):
-            new_cost = cost_so_far[current_node] + 1  # Assuming cost of moving to adjacent cell is 1
-
-            if next_node not in cost_so_far or new_cost < cost_so_far[next_node]:
-                cost_so_far[next_node] = new_cost
-                priority = new_cost + heuristic(next_node, goal)
-                open_list.put((priority, next_node))
+            if next_node not in came_from:
+                open_list.put((heuristic(next_node, goal), next_node))
                 came_from[next_node] = current_node
 
     path = reconstruct_path(came_from, start, goal)
     return path
+
+def heuristic(node, goal):
+    return abs(node[0] - goal[0]) + abs(node[1] - goal[1])  # Manhattan distance heuristic
 
 def neighbors(node, grid):
     row, col = node
