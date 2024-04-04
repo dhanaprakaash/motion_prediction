@@ -1,0 +1,149 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle, Circle
+from matplotlib.animation import FuncAnimation
+from astar import astar
+from dijkstra import dijkstra
+from greedy_best import greedy_best_first_search
+
+# Define the grid size and create an empty grid map with a step size of 0.5m
+grid_size = (200, 200)  # Define grid size (rows, columns) with 0.5m step size
+grid_map = np.zeros(grid_size)  # Initialize an empty grid map
+
+
+'''
+#Debug 1 
+print("Before:")
+for i in range(200):
+    for j in range(200):
+        print(i,j,grid_map[i,j])'''
+
+
+# Define obstacles in the grid map (set cells to 1 for obstacles) with 0.5m step size
+obstacles = []
+
+
+# Define a bigger circular obstacle: (center row, center column, radius)
+bigger_circle_obstacle = (100, 100, 6)
+
+center_row, center_col, radius = bigger_circle_obstacle
+for i in range(grid_size[0]):
+    for j in range(grid_size[1]):
+        if (i - center_row)**2 + (j - center_col)**2 <= radius**2:
+            grid_map[i, j] = 1
+
+
+
+# Add bigger obstacles with different shapes and sizes
+# Rectangle obstacles: (top-left row, top-left column, height, width)
+bigger_obstacles = [(40, 45, 20, 15), (110, 75, 22, 15), (85,163, 18,12),(175,147,12,32)]
+
+
+# Add a border wall around the grid map as obstacles
+border_thickness = 5  # Thickness of the border wall in cells
+border_obstacles = []
+for i in range(border_thickness, grid_size[0] - border_thickness):
+    border_obstacles.append((i, border_thickness))
+    border_obstacles.append((i, grid_size[1] - border_thickness - 1))
+for j in range(border_thickness, grid_size[1] - border_thickness):
+    border_obstacles.append((border_thickness, j))
+    border_obstacles.append((grid_size[0] - border_thickness - 1, j))
+
+for obstacle in border_obstacles:
+    grid_map[obstacle] = 1  # Set border wall obstacle cells to 1 in the grid map
+
+for obstacle in obstacles:
+    grid_map[obstacle] = 1  # Set small obstacle cells to 1 in the grid map
+
+for obstacle in bigger_obstacles:
+    top_left_row, top_left_col, height, width = obstacle
+    grid_map[top_left_row:top_left_row + height, top_left_col:top_left_col + width] = 1  # Set bigger obstacle cells to 1 in the grid map
+
+
+'''
+#Debug2
+print("After:")
+for i in range(200):
+    for j in range(200):
+        print(i,j,grid_map[i,j])'''
+
+
+# Define a function to generate random positions for the robot
+def generate_random_position():
+    while True:
+        x = np.random.randint(grid_size[1])
+        y = np.random.randint(grid_size[0])
+        if grid_map[y, x] == 0:  # Check if the position is not an obstacle
+           #print("init: ", x,y)
+           return y, x
+
+# Define the robot's initial position and movement trajectory with 0.5m step size
+'''robot_position = generate_random_position()  # Initial position of the robot (row, column) with 0.5m step size
+robot_goal = generate_random_position()
+path = dijkstra(grid_map, robot_position, robot_goal)'''
+
+# Define the number of robots and generate random initial positions and goals for each robot
+num_robots = 4  # Example: 3 robots
+robot_positions = [generate_random_position() for _ in range(num_robots)]
+robot_goals = [generate_random_position() for _ in range(num_robots)]
+robot_trajectories = [greedy_best_first_search(grid_map, robot_positions[i], robot_goals[i]) for i in range(num_robots)]
+
+
+
+#debug3
+print ("init:", robot_positions )
+print ("goal:", robot_goals)
+print ("Robot Trajectory: " , robot_trajectories)
+
+#robot_trajectory = [(20, 20), (30, 30), (40, 40), (50, 50), (60, 60)]  # Example trajectory with 0.5m step size
+
+# Initialize plot
+fig, ax = plt.subplots(figsize=(10, 10))  # Set plot size
+ax.set_xlim(0, grid_size[1])  # Set x-axis limits based on grid size
+ax.set_ylim(0, grid_size[0])  # Set y-axis limits based on grid size
+ax.set_aspect('equal')  # Set aspect ratio to equal for square plot
+ax.grid(True)  # Show grid
+
+# Plot obstacles as squares in the grid map with 0.5m step size
+for obstacle in obstacles:
+    ax.add_patch(Rectangle((obstacle[1] - 0.5, obstacle[0] - 0.5), 1, 1, color='cyan'))  # Gray squares for small obstacles
+
+# Plot bigger obstacles with different shapes and sizes
+for obstacle in bigger_obstacles:
+    top_left_row, top_left_col, height, width = obstacle
+    ax.add_patch(Rectangle((top_left_col - 0.5, top_left_row - 0.5), width, height, color='orange'))  # Orange rectangles for bigger obstacles
+
+# Plot the border wall obstacles as squares in the grid map
+for border_obstacle in border_obstacles:
+    ax.add_patch(plt.Rectangle((border_obstacle[1], border_obstacle[0]), 1, 1, color='black'))  # Black squares for border wall
+
+
+# Plot the bigger circular obstacle as a circle in the grid map
+ax.add_patch(Circle((center_col, center_row), radius, color='red'))
+
+
+# Initialize markers and trajectories for each robot
+robot_markers = [ax.plot([], [], 'ro', markersize=10)[0] for _ in range(num_robots)]
+robot_lines = [ax.plot([], [], 'b-', lw=2)[0] for _ in range(num_robots)]
+
+
+# Update function for animation
+def update(frame):
+    for i in range(num_robots):
+        if frame < len(robot_trajectories[i]):
+            x_robot, y_robot = robot_trajectories[i][frame]
+            robot_markers[i].set_data([y_robot], [x_robot])  # Update robot's position
+            robot_lines[i].set_data([pos[1] for pos in robot_trajectories[i][:frame + 1]],
+                                    [pos[0] for pos in robot_trajectories[i][:frame + 1]])  # Update robot trajectory
+        ax.set_title(f'Frame: {frame+1}')  # Set title with frame number
+    
+    return robot_markers + robot_lines
+
+# Animate the robot's movement
+ani = FuncAnimation(fig, update, frames=max(len(traj) for traj in robot_trajectories), interval=100, blit=True)
+
+# Show plot
+plt.xlabel('Columns')
+plt.ylabel('Rows')
+plt.title('Grid-based Robot Movement with Bigger Obstacles (Step Size: 0.5m)')
+plt.show()
